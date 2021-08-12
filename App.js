@@ -1,18 +1,32 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { StyleSheet, Text, View ,Image,FlatList,Button} from 'react-native';
+import { StyleSheet, Text, View ,Image,FlatList,Button,NativeModules } from 'react-native';
 import Header from './component/Header';
 import Main from './screens/Main';
+import { Actions } from 'react-native';
+
+
+
+  
+
 class App extends React.Component{
-  constructor()
+  constructor(props)
   {
-    super();
+    super(props);
     this.state={
+      lastRefresh: Date(Date.now()).toString(), 
       data:[]
     }
+    this.refreshScreen = this.refreshScreen.bind(this)
   }
-
+  refreshScreen() {
+    NativeModules.DevSettings.reload();
+    this.setState({ lastRefresh: Date(Date.now()).toString() })
+}
+  _onPressButton() {
+    alert('You tapped the button!')
+  }
 componentDidMount()
 {
   this.apiCall();
@@ -31,9 +45,9 @@ render() {
   
   return (
     
-    <View>
-      <Header title="Gender Neutral Dating App"/>
-      <FlatList
+    <View style={{alignItems:'center',paddingBottom: 50}}>
+      <Header title="Gender Neutral Dating App" />
+      <FlatList 
       data={this.state.data}      
       renderItem={({item})=>
       <Image style={styles.logo} source={item.picture.large} />} />
@@ -45,23 +59,41 @@ render() {
       <FlatList
       data={this.state.data}      
       renderItem={({item})=>
-      <Text  style={styles.age}>{item.dob.age}</Text>}/>
-      <View style={{ flexDirection:"row" }}>
-    <View style={styles.buttonStyle}>
-        <Button title="NO">Button 1</Button>
+      <Text  style={styles.age}>{item.dob.age}</Text>
+      }/>
+      
+      <View style={styles.container}>
+        
+        <View style={styles.buttonStyle} >
+        <Button 
+        title="NO"
+        color="gray"
+        onPress={() => Alert.alert('Button with adjusted color pressed')}
+      />
+        </View>
+        <View style={styles.buttonStyle} >
+        <Button 
+        onPress={this.refreshScreen} 
+        title="YES"
+        color="orange"
+        
+      />
+        </View>
+      </View>
+      
     </View>
-    <View style={styles.buttonStyle2}>
-        <Button title="YES" />
-    </View>
-</View>
-     
-    </View>
+    
   )
 }
 }
 const styles = StyleSheet.create({
   container: {
     paddingTop: 50,
+    alignItems:'center',
+    width:'500',
+    height:'500',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
   text: {
     fontSize: 32,
@@ -75,15 +107,13 @@ const styles = StyleSheet.create({
     height: 128,
     borderRadius: 60,
   },
+  
   buttonStyle: {
-    width: '50%',
-    height:60,
-    backgroundColor:'gray',
-    fontWeight:'bold',
-    fontSize:18, 
+    width: 250,
+    height: 40
   },
   buttonStyle2: {
-    width: '50%',
+    width: '250',
     height:60,
     backgroundColor:'yellow',
     fontWeight:'bold',
