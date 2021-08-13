@@ -5,25 +5,24 @@ import { StyleSheet, Text, View ,Image,FlatList,Button,NativeModules } from 'rea
 import Header from './component/Header';
 import Main from './screens/Main';
 import { Actions } from 'react-native';
+import 'react-native-gesture-handler';
+import { createStackNavigator } from 'react-navigation';
+import AsyncStorage from '@react-native-community/async-storage'
 
 
-
-  
 
 class App extends React.Component{
   constructor(props)
   {
     super(props);
     this.state={
-      lastRefresh: Date(Date.now()).toString(), 
-      data:[]
+      data:[],
+      counter:Number(localStorage.getItem('myData'))  ,
+      
     }
-    this.refreshScreen = this.refreshScreen.bind(this)
   }
-  refreshScreen() {
-    NativeModules.DevSettings.reload();
-    this.setState({ lastRefresh: Date(Date.now()).toString() })
-}
+  
+
   _onPressButton() {
     alert('You tapped the button!')
   }
@@ -31,6 +30,8 @@ componentDidMount()
 {
   this.apiCall();
 }
+
+
 async apiCall()
 {
   let resp=await fetch('https://randomuser.me/api/');
@@ -39,13 +40,45 @@ async apiCall()
   this.setState({data:respJson.results})
   
 }
-
-render() {
-  1
+refreshPage= () => {
+  this.setState({
+    counter: this.state.counter + 1,
+  })
+  window.location.reload(false);
   
+}
+refreshPageNoCounter= () => {
+  this.setState({
+    
+  })
+  window.location.reload(false);
+  
+}
+onIncrement = () => {
+  this.setState({
+    counter: this.state.counter + 1,
+  })
+};
+getValueFunction = () => {
+  // Function to get the value from AsyncStorage
+  AsyncStorage.getItem('cnt').then(
+    (value) =>
+      // AsyncStorage returns a promise
+      // Adding a callback to get the value
+      setGetValue(value),
+    // Setting the value in Text
+  );
+};
+render() {
+  const counter = this.state.counter;
+  //AsyncStorage.setItem('cnt', counter);
+  const pc=localStorage.setItem('myData', counter);
+  var check=null;
+  if (counter>=5) check="true";
+
   return (
     
-    <View style={{alignItems:'center',paddingBottom: 50}}>
+    <View style={{alignItems:'center'}}>
       <Header title="Gender Neutral Dating App" />
       <FlatList 
       data={this.state.data}      
@@ -68,23 +101,27 @@ render() {
         <Button 
         title="NO"
         color="gray"
-        onPress={() => Alert.alert('Button with adjusted color pressed')}
+        onPress={this.refreshPageNoCounter}
       />
         </View>
         <View style={styles.buttonStyle} >
         <Button 
-        onPress={this.refreshScreen} 
+        onPress={this.refreshPage}
+          
         title="YES"
         color="orange"
-        
+        disabled={check}
       />
+      
         </View>
+        
       </View>
       
     </View>
     
   )
 }
+
 }
 const styles = StyleSheet.create({
   container: {
@@ -103,6 +140,7 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   logo: {
+    marginTop:20,
     width: 128,
     height: 128,
     borderRadius: 60,
@@ -120,6 +158,8 @@ const styles = StyleSheet.create({
     fontSize:18, 
   }
 });
+
+
 
 export default App;
 
