@@ -3,21 +3,23 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { StyleSheet, Text, View ,Image,FlatList,Button,NativeModules } from 'react-native';
 import Header from './component/Header';
-import Main from './screens/Main';
-import { Actions } from 'react-native';
-import 'react-native-gesture-handler';
-import { createStackNavigator } from 'react-navigation';
-import AsyncStorage from '@react-native-community/async-storage'
+import Moment from 'moment';
+
+
+
+
 
 
 
 class App extends React.Component{
   constructor(props)
   {
+    
     super(props);
     this.state={
       data:[],
       counter:Number(localStorage.getItem('myData'))  ,
+      isLoading: true
       
     }
   }
@@ -28,6 +30,7 @@ class App extends React.Component{
   }
 componentDidMount()
 {
+  this.setState({isLoading: false})
   this.apiCall();
 }
 
@@ -70,14 +73,19 @@ getValueFunction = () => {
   );
 };
 render() {
+  Moment.locale('en');
   const counter = this.state.counter;
   //AsyncStorage.setItem('cnt', counter);
   const pc=localStorage.setItem('myData', counter);
-  var check=null;
-  if (counter>=5) check="true";
+  var check=null,checkbutton=null;
+  if (counter>=5 || this.state.isLoading ) check="true";
+  if (this.state.isLoading ) checkbutton="true";
 
   return (
-    
+    this.state.isLoading ? <View style={{alignItems:'center'}}>
+      <Header title="Gender Neutral Dating App" />
+          Loading...
+      </View> : 
     <View style={{alignItems:'center'}}>
       <Header title="Gender Neutral Dating App" />
       <FlatList 
@@ -92,8 +100,10 @@ render() {
       <FlatList
       data={this.state.data}      
       renderItem={({item})=>
-      <Text  style={styles.age}>{item.dob.age}</Text>
+      <Text  style={styles.age}>{Moment().format('YYYY')-Moment(item.dob.date).format('YYYY')} </Text>
+ 
       }/>
+      
       
       <View style={styles.container}>
         
@@ -102,6 +112,7 @@ render() {
         title="NO"
         color="gray"
         onPress={this.refreshPageNoCounter}
+        disabled={checkbutton}
       />
         </View>
         <View style={styles.buttonStyle} >
@@ -137,7 +148,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   age: {
-    fontSize: 14
+    fontSize: 14,
+    justifyContent:'center'
   },
   logo: {
     marginTop:20,
@@ -159,8 +171,5 @@ const styles = StyleSheet.create({
   }
 });
 
-
-
 export default App;
-
 
