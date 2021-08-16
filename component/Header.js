@@ -5,7 +5,7 @@ import {View, Text, StyleSheet} from 'react-native';
 const Header=props=>{
 
     
-    const counter=localStorage.getItem('myData');
+    const counter=sessionStorage.getItem('myData');
     var color=null;
     if (counter>=5) color="styles.CounterOrange";
     return(
