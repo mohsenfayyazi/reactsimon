@@ -1,10 +1,8 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { Component } from 'react';
-import { render } from 'react-dom';
+import React, {useState} from 'react';
 import { StyleSheet, Text, View ,Image,FlatList,Button,NativeModules } from 'react-native';
 import Header from './component/Header';
 import Moment from 'moment';
-
+import * as Font from 'expo-font';
 
 
 
@@ -16,32 +14,29 @@ class App extends React.Component{
   {
     
     super(props);
+    this.state = {firstLaunch: null};
     this.state={
       data:[],
-      counter:Number(localStorage.getItem('myData'))  ,
+      counter:Number(sessionStorage.getItem('myData'))  ,
       isLoading: true
       
     }
   }
-  
 
-  _onPressButton() {
-    alert('You tapped the button!')
-  }
 componentDidMount()
 {
   this.setState({isLoading: false})
   this.apiCall();
+  this.setState({firstLaunch: true});
 }
 
 
 async apiCall()
 {
   let resp=await fetch('https://randomuser.me/api/');
-  let respJson=await resp.json()
-  console.log(respJson)
+  let respJson=await resp.json()  
   this.setState({data:respJson.results})
-  
+ 
 }
 refreshPage= () => {
   this.setState({
@@ -57,30 +52,21 @@ refreshPageNoCounter= () => {
   window.location.reload(false);
   
 }
-onIncrement = () => {
-  this.setState({
-    counter: this.state.counter + 1,
-  })
-};
-getValueFunction = () => {
-  // Function to get the value from AsyncStorage
-  AsyncStorage.getItem('cnt').then(
-    (value) =>
-      // AsyncStorage returns a promise
-      // Adding a callback to get the value
-      setGetValue(value),
-    // Setting the value in Text
-  );
-};
+
 render() {
   Moment.locale('en');
-  const counter = this.state.counter;
-  //AsyncStorage.setItem('cnt', counter);
-  const pc=localStorage.setItem('myData', counter);
+  let counter = this.state.counter;
+  const LoadFont=()=>{
+    Font.loadAsync({
+       GoogleFont:require('./assets/font/Roboto-Regular.ttf')
+    })
+  }
+
+  const pc=sessionStorage.setItem('myData', counter);
   var check=null,checkbutton=null;
   if (counter>=5 || this.state.isLoading ) check="true";
   if (this.state.isLoading ) checkbutton="true";
-
+  
   return (
     this.state.isLoading ? <View style={{alignItems:'center'}}>
       <Header title="Gender Neutral Dating App" />
@@ -146,6 +132,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 32,
     textTransform: 'uppercase',
+    fontFamily:'GoogleFont'
   },
   age: {
     fontSize: 14,
@@ -172,4 +159,3 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-
